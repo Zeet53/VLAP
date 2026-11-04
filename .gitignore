@@ -1,0 +1,29 @@
+# Сборка: пересоздаётся при каждом dotnet build / publish
+bin/
+obj/
+publish/
+artifacts/
+
+# IDE и локальные настройки инструментов
+.vs/
+.idea/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Артефакты тестов и покрытия
+TestResults/
+*.coverage
+coverage.*
+
+# Логи и временные файлы
+*.log
+*.tmp
+*.bak
+
+# Служебные файлы Windows
+Thumbs.db
+desktop.ini
+.DS_Store

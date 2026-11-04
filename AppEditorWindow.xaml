@@ -1,0 +1,347 @@
+<Window x:Class="VLAP.AppEditorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Приложение"
+        Width="460" Height="572"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        FontFamily="Segoe UI Variable Text, Segoe UI"
+        FontSize="13"
+        TextOptions.TextRenderingMode="Grayscale"
+        Foreground="{DynamicResource FgBrush}">
+
+    <Window.Resources>
+        <!-- brushes come from the application theme dictionary -->
+
+        <Style x:Key="DialogBtn" TargetType="Button">
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Padding" Value="16,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="B" CornerRadius="8" BorderThickness="1"
+                                BorderBrush="{DynamicResource LineBrush}" Background="{DynamicResource SurfaceBrush}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource LineStrongBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource FgBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PrimaryBtn" TargetType="Button" BasedOn="{StaticResource DialogBtn}">
+            <Setter Property="Foreground" Value="{DynamicResource InvertFgBrush}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="B" CornerRadius="8" Background="{DynamicResource InvertBgBrush}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="B" Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- text field -->
+        <Style x:Key="Field" TargetType="Border">
+            <Setter Property="CornerRadius" Value="9"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource FieldBrush}"/>
+            <Setter Property="Padding" Value="11,0"/>
+            <Setter Property="Height" Value="38"/>
+            <Style.Triggers>
+                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                    <Setter Property="BorderBrush" Value="{DynamicResource AccentLineBrush}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11.5"/>
+            <Setter Property="Foreground" Value="{DynamicResource DimBrush}"/>
+            <Setter Property="Margin" Value="2,0,0,6"/>
+        </Style>
+
+        <Style x:Key="Switch" TargetType="ToggleButton">
+            <Setter Property="Width" Value="38"/>
+            <Setter Property="Height" Value="22"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="T" Width="38" Height="22" CornerRadius="11"
+                                Background="{DynamicResource SurfaceBrush}"
+                                BorderBrush="{DynamicResource LineStrongBrush}" BorderThickness="1">
+                            <Ellipse x:Name="K" Width="16" Height="16" Fill="{DynamicResource KnobBrush}"
+                                     HorizontalAlignment="Left" Margin="2,0,0,0"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="T" Property="Background" Value="{DynamicResource InvertBgBrush}"/>
+                                <Setter TargetName="T" Property="BorderBrush" Value="{DynamicResource InvertBgBrush}"/>
+                                <Setter TargetName="K" Property="Fill" Value="{DynamicResource InvertFgBrush}"/>
+                                <Setter TargetName="K" Property="HorizontalAlignment" Value="Right"/>
+                                <Setter TargetName="K" Property="Margin" Value="0,0,2,0"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- one category as a tag you can tick -->
+        <Style x:Key="TagChip" TargetType="ToggleButton">
+            <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
+            <Setter Property="FontSize" Value="11.5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="0,0,6,4"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="B" CornerRadius="7" BorderThickness="1"
+                                BorderBrush="{DynamicResource LineBrush}" Background="Transparent" Padding="9,4">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource LineStrongBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource FgBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="B" Property="Background" Value="{DynamicResource InvertBgBrush}"/>
+                                <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource InvertBgBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource InvertFgBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="B" CornerRadius="6" Background="Transparent" Padding="8,6">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="B" Property="Background" Value="{DynamicResource SurfaceBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource FgBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="B" Property="Background" Value="{DynamicResource AccentSoftBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource FgBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="DarkCombo" TargetType="ComboBox">
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Foreground" Value="{DynamicResource FgBrush}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton x:Name="Toggle" Focusable="False" ClickMode="Press"
+                                          IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="B" CornerRadius="9" BorderThickness="1"
+                                                BorderBrush="{DynamicResource LineBrush}" Background="{DynamicResource FieldBrush}" Padding="11,0">
+                                            <Grid>
+                                                <ContentPresenter Content="{Binding SelectionBoxItem, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                                                  VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                                                <Path Data="M0,0 L4,4 L8,0" Stroke="{DynamicResource MutedBrush}"
+                                                      StrokeThickness="1.4" HorizontalAlignment="Right"
+                                                      VerticalAlignment="Center" Margin="0,1,0,0"/>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource LineStrongBrush}"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <Popup IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom" StaysOpen="False"
+                                   AllowsTransparency="True" PopupAnimation="Fade">
+                                <Border Background="{DynamicResource PopupBrush}" BorderBrush="{DynamicResource LineStrongBrush}"
+                                        BorderThickness="1" CornerRadius="10" Margin="0,4,0,0" Padding="4" MinWidth="180">
+                                    <ScrollViewer MaxHeight="240">
+                                        <ItemsPresenter/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Border Margin="16" CornerRadius="16" Background="{DynamicResource DialogBgBrush}" BorderBrush="{DynamicResource DialogBorderBrush}" BorderThickness="1"
+            MouseLeftButtonDown="Root_MouseLeftButtonDown">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="30" ShadowDepth="6" Direction="270" Opacity="0.55" Color="Black"/>
+        </Border.Effect>
+
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock x:Name="TitleText" Text="Изменить приложение" FontSize="15" FontWeight="SemiBold"
+                       Foreground="{DynamicResource FgBrush}"/>
+
+            <StackPanel Grid.Row="1" Margin="0,16,0,0">
+                <TextBlock Text="Название" Style="{StaticResource FieldLabel}"/>
+                <Border Style="{StaticResource Field}">
+                    <TextBox x:Name="NameBox" Background="Transparent" BorderThickness="0"
+                             Foreground="{DynamicResource FgBrush}" CaretBrush="{DynamicResource AccentBrush}"
+                             FontSize="13" VerticalContentAlignment="Center" MaxLength="60"/>
+                </Border>
+            </StackPanel>
+
+            <StackPanel Grid.Row="2" Margin="0,14,0,0">
+                <TextBlock Text="Файл или папка" Style="{StaticResource FieldLabel}"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource Field}">
+                        <TextBox x:Name="PathBox" Background="Transparent" BorderThickness="0"
+                                 Foreground="{DynamicResource FgBrush}" CaretBrush="{DynamicResource AccentBrush}"
+                                 FontSize="12" VerticalContentAlignment="Center"/>
+                    </Border>
+                    <Button Grid.Column="1" Content="Обзор…" Style="{StaticResource DialogBtn}" Height="38"
+                            Margin="8,0,0,0" Click="Browse_Click"/>
+                </Grid>
+            </StackPanel>
+
+            <StackPanel x:Name="ArgsRow" Grid.Row="3" Margin="0,14,0,0">
+                <TextBlock Text="Аргументы запуска" Style="{StaticResource FieldLabel}"/>
+                <Border Style="{StaticResource Field}">
+                    <TextBox x:Name="ArgsBox" Background="Transparent" BorderThickness="0"
+                             Foreground="{DynamicResource FgBrush}" CaretBrush="{DynamicResource AccentBrush}"
+                             FontSize="12" VerticalContentAlignment="Center"/>
+                </Border>
+            </StackPanel>
+
+            <StackPanel Grid.Row="4" Margin="0,14,0,0">
+                <TextBlock Text="Категории" Style="{StaticResource FieldLabel}"/>
+                <Border Style="{StaticResource Field}" Height="Auto" MinHeight="40" Padding="9,7,3,3">
+                    <ItemsControl x:Name="CategoryChips">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <ToggleButton Style="{StaticResource TagChip}" Content="{Binding Label}"
+                                              IsChecked="{Binding IsOn, Mode=TwoWay}"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Border>
+                <TextBlock Text="Можно отметить несколько или ни одной"
+                           FontSize="11" Foreground="{DynamicResource DimBrush}" Margin="2,5,0,0"/>
+            </StackPanel>
+
+            <StackPanel x:Name="AutoDeleteRow" Grid.Row="5" Margin="0,14,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="Убирать, если не открывал" FontSize="12.5"
+                                   Foreground="{DynamicResource FgBrush}"/>
+                        <TextBlock Text="Из списка пропадает только запись, папка на диске остаётся"
+                                   FontSize="11" Foreground="{DynamicResource DimBrush}" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    <ToggleButton x:Name="AutoDeleteSwitch" Grid.Column="1" Style="{StaticResource Switch}"
+                                  VerticalAlignment="Center"/>
+                </Grid>
+                <StackPanel x:Name="AutoDeleteDaysRow" Margin="0,12,0,0">
+                    <TextBlock Text="Не открывал дольше, дней" Style="{StaticResource FieldLabel}"/>
+                    <Border Style="{StaticResource Field}" Width="110" HorizontalAlignment="Left">
+                        <TextBox x:Name="AutoDeleteDaysBox" Background="Transparent" BorderThickness="0"
+                                 Foreground="{DynamicResource FgBrush}" CaretBrush="{DynamicResource AccentBrush}"
+                                 FontSize="13" VerticalContentAlignment="Center" MaxLength="4"/>
+                    </Border>
+                </StackPanel>
+            </StackPanel>
+
+            <Grid x:Name="AdminRow" Grid.Row="6" Margin="0,16,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="Запускать от администратора" FontSize="12.5"
+                               Foreground="{DynamicResource FgBrush}"/>
+                    <TextBlock Text="Windows спросит подтверждение при каждом запуске" FontSize="11"
+                               Foreground="{DynamicResource DimBrush}" Margin="0,2,0,0"/>
+                </StackPanel>
+                <ToggleButton x:Name="AdminSwitch" Grid.Column="1" Style="{StaticResource Switch}"
+                              VerticalAlignment="Center"/>
+            </Grid>
+
+            <TextBlock x:Name="ErrorText" Grid.Row="7" Margin="2,14,0,0" TextWrapping="Wrap"
+                       FontSize="11.5" Foreground="{DynamicResource DangerBrush}"
+                       VerticalAlignment="Top" Visibility="Collapsed"/>
+
+            <Grid Grid.Row="8" Margin="0,16,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="HintText" Text="" FontSize="11.5" Foreground="{DynamicResource DimBrush}"
+                           VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="220"/>
+                <Button Grid.Column="1" Content="Отмена" Style="{StaticResource DialogBtn}"
+                        HorizontalAlignment="Right" Margin="0,0,8,0" Click="Cancel_Click"/>
+                <Button Grid.Column="2" Content="Сохранить" Style="{StaticResource PrimaryBtn}" Click="Save_Click"/>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

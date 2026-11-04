@@ -1,0 +1,1129 @@
+﻿<Window x:Class="VLAP.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:VLAP"
+        Title="VLAP"
+        Width="948" Height="638"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        Topmost="True"
+        WindowStartupLocation="Manual"
+        FontFamily="Segoe UI Variable Text, Segoe UI"
+        FontSize="13"
+        UseLayoutRounding="True"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="ClearType"
+        Foreground="{DynamicResource FgBrush}">
+
+    <Window.Resources>
+
+        <!-- brushes come from Themes/Dark.xaml or Themes/Light.xaml so both windows switch together -->
+
+        <Style x:Key="IconBtn" TargetType="Button">
+            <Setter Property="Width" Value="32"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="B" CornerRadius="9" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="B" Property="Background" Value="{DynamicResource SurfaceBrush}"/>
+                                <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource LineBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource FgBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="IconToggle" TargetType="ToggleButton">
+            <Setter Property="Width" Value="32"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="B" CornerRadius="9" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="B" Property="Background" Value="{DynamicResource SurfaceBrush}"/>
+                                <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource LineBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource FgBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="B" Property="Background" Value="{DynamicResource InvertBgBrush}"/>
+                                <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource InvertBgBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource InvertFgBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="TabToggle" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
+            <Setter Property="Margin" Value="0,0,4,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="B" CornerRadius="8" Background="Transparent" BorderBrush="Transparent"
+                                BorderThickness="1" Padding="11,6">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="B" Property="Background" Value="{DynamicResource SurfaceBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource FgBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="B" Property="Background" Value="{DynamicResource InvertBgBrush}"/>
+                                <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource InvertBgBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource InvertFgBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="TileItem" TargetType="ListBoxItem">
+            <Setter Property="Width" Value="102"/>
+            <Setter Property="Margin" Value="0,0,4,4"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <!-- the dotted focus rectangle belongs to keyboard focus, but here it fires on clicks too -->
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="B" CornerRadius="13" Background="Transparent" BorderBrush="Transparent"
+                                BorderThickness="1" Padding="8,13,8,11">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="B" Property="Background" Value="{DynamicResource SurfaceBrush}"/>
+                                <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource LineBrush}"/>
+                            </Trigger>
+                            <!-- no selected state: the tile only answers the pointer, a click launches the app -->
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <EventSetter Event="PreviewMouseLeftButtonUp" Handler="Tile_MouseLeftButtonUp"/>
+        </Style>
+
+        <Style x:Key="Switch" TargetType="ToggleButton">
+            <Setter Property="Width" Value="38"/>
+            <Setter Property="Height" Value="22"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="T" Width="38" Height="22" CornerRadius="11"
+                                Background="{DynamicResource Surface2Brush}"
+                                BorderBrush="{DynamicResource LineStrongBrush}" BorderThickness="1">
+                            <Ellipse x:Name="K" Width="16" Height="16" Fill="{DynamicResource KnobBrush}"
+                                     HorizontalAlignment="Left" Margin="2,0,0,0"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="T" Property="Background" Value="{DynamicResource InvertBgBrush}"/>
+                                <Setter TargetName="T" Property="BorderBrush" Value="{DynamicResource InvertBgBrush}"/>
+                                <Setter TargetName="K" Property="Fill" Value="{DynamicResource InvertFgBrush}"/>
+                                <Setter TargetName="K" Property="HorizontalAlignment" Value="Right"/>
+                                <Setter TargetName="K" Property="Margin" Value="0,0,2,0"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PresetBtn" TargetType="Button">
+            <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
+            <Setter Property="FontSize" Value="11.5"/>
+            <Setter Property="Margin" Value="0,0,7,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="B" CornerRadius="8" BorderThickness="1"
+                                BorderBrush="{DynamicResource LineBrush}" Background="{DynamicResource SurfaceBrush}" Padding="10,6">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource AccentLineBrush}"/>
+                                <Setter TargetName="B" Property="Background" Value="{DynamicResource AccentSoftBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource FgBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ChipBtn" TargetType="Button">
+            <Setter Property="Foreground" Value="{DynamicResource DimBrush}"/>
+            <Setter Property="FontSize" Value="10.5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="B" CornerRadius="6" BorderThickness="1"
+                                BorderBrush="{DynamicResource LineBrush}" Padding="7,2" Background="Transparent">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource AccentLineBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="GhostBtn" TargetType="Button">
+            <Setter Property="Foreground" Value="{DynamicResource FgBrush}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="B" CornerRadius="8" BorderThickness="1"
+                                BorderBrush="{DynamicResource LineBrush}" Background="{DynamicResource SurfaceBrush}" Padding="12,7">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource AccentLineBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- dark combobox -->
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="B" CornerRadius="6" Background="Transparent" Padding="8,6">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="B" Property="Background" Value="{DynamicResource SurfaceBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource FgBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="B" Property="Background" Value="{DynamicResource AccentSoftBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="DarkCombo" TargetType="ComboBox">
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="MinWidth" Value="148"/>
+            <Setter Property="Foreground" Value="{DynamicResource FgBrush}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton x:Name="Toggle" Focusable="False" ClickMode="Press"
+                                          IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="B" CornerRadius="8" BorderThickness="1"
+                                                BorderBrush="{DynamicResource LineBrush}" Background="{DynamicResource FieldBrush}" Padding="11,0">
+                                            <Grid>
+                                                <!-- the selected value never gets the combo's Foreground by inheritance (it came out
+                                                     black), so it is a plain TextBlock that binds that property explicitly -->
+                                                <TextBlock Text="{Binding SelectionBoxItem, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                                           Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                                           VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                                                <Path Data="M0,0 L4,4 L8,0" Stroke="{DynamicResource MutedBrush}"
+                                                      StrokeThickness="1.4" HorizontalAlignment="Right"
+                                                      VerticalAlignment="Center" Margin="0,1,0,0"/>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource LineStrongBrush}"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <Popup IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom" StaysOpen="False"
+                                   AllowsTransparency="True" PopupAnimation="Fade">
+                                <Border Background="{DynamicResource PopupBrush}" BorderBrush="{DynamicResource LineStrongBrush}"
+                                        BorderThickness="1" CornerRadius="10" Margin="0,4,0,0" Padding="4" MinWidth="148">
+                                    <ScrollViewer MaxHeight="240">
+                                        <ItemsPresenter/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- picker whose value and list are drawn in the accent color -->
+        <Style x:Key="AccentCombo" TargetType="ComboBox" BasedOn="{StaticResource DarkCombo}">
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ComboBoxItem" BasedOn="{StaticResource {x:Type ComboBoxItem}}">
+                        <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                        <Style.Triggers>
+                            <!-- the base style dims the others and brightens the hovered one; here every row stays accent -->
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- category picker -->
+        <Style x:Key="DarkMenu" TargetType="ContextMenu">
+            <Setter Property="Background" Value="{DynamicResource PopupBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource FgBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource LineStrongBrush}"/>
+            <Setter Property="HasDropShadow" Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ContextMenu">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1" CornerRadius="10" Padding="4">
+                            <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="DarkMenuItem" TargetType="MenuItem">
+            <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="MenuItem">
+                        <Border x:Name="B" CornerRadius="6" Background="Transparent" Padding="9,6">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock x:Name="Mark" Text="&#x2713;" FontSize="10"
+                                           Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"
+                                           Margin="0,0,7,0" Visibility="Collapsed"/>
+                                <ContentPresenter Grid.Column="1" ContentSource="Header" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="B" Property="Background" Value="{DynamicResource SurfaceBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource FgBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Mark" Property="Visibility" Value="Visible"/>
+                                <Setter Property="Foreground" Value="{DynamicResource FgBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- editable category name -->
+        <Style x:Key="NameBox" TargetType="TextBox">
+            <Setter Property="Foreground" Value="{DynamicResource FgBrush}"/>
+            <Setter Property="CaretBrush" Value="{DynamicResource FgBrush}"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="7,4"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="B" CornerRadius="7" BorderThickness="1"
+                                BorderBrush="Transparent" Background="{TemplateBinding Background}">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"
+                                          VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="B" Property="Background" Value="{DynamicResource FieldBrush}"/>
+                                <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource LineBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                <Setter TargetName="B" Property="Background" Value="{DynamicResource FieldFocusBrush}"/>
+                                <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource AccentLineBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- settings pieces -->
+        <Style x:Key="SectionTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource DimBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
+        </Style>
+        <Style x:Key="RowTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="{DynamicResource FgBrush}"/>
+        </Style>
+        <Style x:Key="RowHint" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11.5"/>
+            <Setter Property="Foreground" Value="{DynamicResource DimBrush}"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="Margin" Value="0,2,0,0"/>
+        </Style>
+        <Style x:Key="RowBorder" TargetType="Border">
+            <Setter Property="BorderBrush" Value="{DynamicResource RowLineBrush}"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="Padding" Value="0,11"/>
+        </Style>
+
+        <!-- settings section that folds shut and remembers it -->
+        <Style x:Key="SettingsExpander" TargetType="Expander">
+            <Setter Property="Margin" Value="0,0,0,4"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Expander">
+                        <StackPanel>
+                            <ToggleButton Focusable="False" Cursor="Hand" ClickMode="Press"
+                                          Content="{TemplateBinding Header}"
+                                          IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border Background="Transparent" Padding="0,7,0,7">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Path x:Name="Chevron" Data="M0,0 L4,4 L8,0"
+                                                      Stroke="{DynamicResource DimBrush}" StrokeThickness="1.5"
+                                                      HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                      RenderTransformOrigin="0.5,0.5" Margin="1,1,10,0"/>
+                                                <ContentPresenter Grid.Column="1" VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsChecked" Value="True">
+                                                <Setter TargetName="Chevron" Property="RenderTransform">
+                                                    <Setter.Value>
+                                                        <RotateTransform Angle="180"/>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Trigger>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="Chevron" Property="Stroke" Value="{DynamicResource FgBrush}"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <ContentPresenter x:Name="Body" Visibility="Collapsed"/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsExpanded" Value="True">
+                                <Setter TargetName="Body" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- shown while files/folders are dragged over a drop zone -->
+        <Style x:Key="DropHintOverlay" TargetType="Border">
+            <Setter Property="Visibility" Value="Collapsed"/>
+            <Setter Property="IsHitTestVisible" Value="False"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}"/>
+        </Style>
+
+    </Window.Resources>
+
+    <Border x:Name="Shell" Margin="0" CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource ShellBorderBrush}" Background="Transparent"
+            MouseLeftButtonDown="Shell_MouseLeftButtonDown">
+        <Grid>
+            <!-- live backdrop: a translucent tint over the system acrylic, or an opaque fill when it is off -->
+            <Border x:Name="BodyBackdrop" Background="{DynamicResource BodyBgBrush}" IsHitTestVisible="False"/>
+
+            <!-- main view -->
+            <Grid x:Name="MainView">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- search -->
+                <Border x:Name="SearchShell" Grid.Row="0" Margin="20,14,56,0" Height="50" CornerRadius="13"
+                        BorderThickness="1">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}"/>
+                            <Setter Property="Background" Value="{DynamicResource FieldBrush}"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                    <Setter Property="BorderBrush" Value="{DynamicResource AccentLineBrush}"/>
+                                    <Setter Property="Background" Value="{DynamicResource FieldFocusBrush}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <Grid Margin="14,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Grid Width="17" Height="17" VerticalAlignment="Center" Margin="0,0,11,0">
+                            <Ellipse Width="12" Height="12" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.6"
+                                     HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                            <Path Data="M0,0 L4,4" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.6"
+                                  HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,1,1"/>
+                        </Grid>
+
+                        <Grid Grid.Column="1">
+                            <TextBox x:Name="SearchInput" Background="Transparent" BorderThickness="0"
+                                     Foreground="{DynamicResource FgBrush}" CaretBrush="{DynamicResource AccentBrush}"
+                                     FontSize="14.5" VerticalContentAlignment="Center" VerticalAlignment="Center"
+                                     TextChanged="SearchInput_TextChanged" PreviewKeyDown="SearchInput_PreviewKeyDown"/>
+                            <TextBlock x:Name="SearchPlaceholder" Text="Найти приложение…" FontSize="14.5"
+                                       Foreground="{DynamicResource DimBrush}" VerticalAlignment="Center"
+                                       IsHitTestVisible="False" Margin="2,0,0,0"/>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <!-- tabs: scroll sideways once there are more categories than fit -->
+                <ScrollViewer Grid.Row="1" Margin="20,14,56,12" HorizontalScrollBarVisibility="Hidden"
+                              VerticalScrollBarVisibility="Disabled" PanningMode="HorizontalOnly">
+                    <StackPanel x:Name="TabsPanel" Orientation="Horizontal"/>
+                </ScrollViewer>
+
+                <!-- app grid: drop an exe, shortcut or folder anywhere in it -->
+                <Grid x:Name="AppsDropZone" Grid.Row="2" Margin="12,0,12,0" AllowDrop="True">
+                    <ListBox x:Name="AppsList" Background="Transparent" BorderThickness="0"
+                             IsTextSearchEnabled="False"
+                             FocusVisualStyle="{x:Null}"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             ItemContainerStyle="{StaticResource TileItem}"
+                             ContextMenuOpening="AppsList_ContextMenuOpening"
+                             PreviewKeyDown="AppsList_PreviewKeyDown">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate DataType="{x:Type local:AppEntry}">
+                                <StackPanel>
+                                    <Grid Width="42" Height="42" HorizontalAlignment="Center">
+                                        <Border x:Name="IconBox" CornerRadius="12" Background="{DynamicResource IconBoxBrush}"
+                                                BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"/>
+                                        <Image Source="{Binding IconImage}" Width="30" Height="30"
+                                               RenderOptions.BitmapScalingMode="HighQuality"/>
+                                        <TextBlock x:Name="MonoText" Text="{Binding Mono}" FontSize="13" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource MonoTextBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <Ellipse x:Name="RunDot" Width="6" Height="6" Fill="{DynamicResource GoodBrush}"
+                                                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2,-2,0"
+                                                 Visibility="Collapsed"/>
+                                    </Grid>
+                                    <TextBlock Text="{Binding Name}" FontSize="11.5" TextAlignment="Center"
+                                               TextWrapping="Wrap" MaxHeight="30" TextTrimming="CharacterEllipsis"
+                                               Foreground="{DynamicResource MutedBrush}" Margin="0,9,0,0"
+                                               LineHeight="15" LineStackingStrategy="BlockLineHeight"/>
+                                </StackPanel>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding HasIcon}" Value="True">
+                                        <Setter TargetName="MonoText" Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Running}" Value="True">
+                                        <Setter TargetName="RunDot" Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
+                                        <Setter TargetName="IconBox" Property="BorderBrush" Value="{DynamicResource AccentLineBrush}"/>
+                                        <Setter TargetName="IconBox" Property="Background" Value="{DynamicResource AccentSoftBrush}"/>
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <TextBlock x:Name="EmptyHint" Text="Ничего не нашлось" Foreground="{DynamicResource DimBrush}"
+                               HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,44,0,0" Visibility="Collapsed"/>
+
+                    <Border x:Name="AppsDropHint" Style="{StaticResource DropHintOverlay}" Margin="4">
+                        <Grid>
+                            <Rectangle Stroke="{DynamicResource AccentBrush}" StrokeThickness="1.5" StrokeDashArray="3 3"
+                                       RadiusX="16" RadiusY="16" Margin="1"/>
+                            <TextBlock Text="Отпусти — добавится в список" FontSize="12" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource AccentBrush}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- footer: the presets strip; the settings switch can take it away -->
+                <Border x:Name="PresetsFooter" Grid.Row="3" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,1,0,0" Padding="20,12,20,14">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <ScrollViewer Grid.Column="0" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled">
+                            <StackPanel x:Name="PresetsPanel" Orientation="Horizontal"/>
+                        </ScrollViewer>
+
+                        <TextBlock x:Name="FooterCount" Grid.Column="1" FontSize="11" Foreground="{DynamicResource DimBrush}"
+                                   VerticalAlignment="Center" Margin="12,0,0,0"/>
+                    </Grid>
+                </Border>
+
+                <!-- the typed query, Dota-style: big ghost letters in the middle of the grid -->
+                <TextBlock x:Name="SearchWatermark" Grid.Row="1" Grid.RowSpan="3" IsHitTestVisible="False"
+                           Opacity="0.3" FontSize="44" FontWeight="SemiBold" Foreground="{DynamicResource FgBrush}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"
+                           TextTrimming="CharacterEllipsis" MaxWidth="620" Visibility="Collapsed"/>
+            </Grid>
+
+            <!-- settings view -->
+            <Border x:Name="SettingsView" Visibility="Collapsed" Background="{DynamicResource SettingsBgBrush}" CornerRadius="8">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="22,18,52,22">
+                    <StackPanel>
+
+                        <Expander x:Name="AppearanceSection" Tag="appearance" Style="{StaticResource SettingsExpander}"
+                                  Expanded="Section_Toggled" Collapsed="Section_Toggled">
+                            <Expander.Header>
+                                <TextBlock Text="ВНЕШНИЙ ВИД" Style="{StaticResource SectionTitle}" Margin="0"/>
+                            </Expander.Header>
+                            <StackPanel>
+
+                        <Border Style="{StaticResource RowBorder}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Светлая тема" Style="{StaticResource RowTitle}"/>
+                                    <TextBlock Text="Чёрно-белая палитра на светлом фоне вместо тёмной" Style="{StaticResource RowHint}"/>
+                                </StackPanel>
+                                <ToggleButton x:Name="ThemeSwitch" Grid.Column="1" Style="{StaticResource Switch}"
+                                              VerticalAlignment="Center" Click="ThemeSwitch_Click"/>
+                            </Grid>
+                        </Border>
+
+                        <Border Style="{StaticResource RowBorder}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Масштаб интерфейса" Style="{StaticResource RowTitle}"/>
+                                    <TextBlock Text="Размер окна, иконок и шрифта" Style="{StaticResource RowHint}"/>
+                                </StackPanel>
+                                <ComboBox x:Name="ScaleCombo" Grid.Column="1" Style="{StaticResource AccentCombo}"
+                                          VerticalAlignment="Center" SelectionChanged="ScaleCombo_SelectionChanged"/>
+                            </Grid>
+                        </Border>
+
+                        <Border Style="{StaticResource RowBorder}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Размытие фона" Style="{StaticResource RowTitle}"/>
+                                    <TextBlock Text="Acrylic-стекло вместо тёмной плашки" Style="{StaticResource RowHint}"/>
+                                </StackPanel>
+                                <ToggleButton x:Name="BlurSwitch" Grid.Column="1" Style="{StaticResource Switch}"
+                                              VerticalAlignment="Center" Click="BlurSwitch_Click"/>
+                            </Grid>
+                        </Border>
+
+                            </StackPanel>
+                        </Expander>
+
+                        <Expander x:Name="BehaviorSection" Tag="behavior" Style="{StaticResource SettingsExpander}"
+                                  Expanded="Section_Toggled" Collapsed="Section_Toggled">
+                            <Expander.Header>
+                                <TextBlock Text="ПОВЕДЕНИЕ" Style="{StaticResource SectionTitle}" Margin="0"/>
+                            </Expander.Header>
+                            <StackPanel>
+
+                        <Border Style="{StaticResource RowBorder}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Хоткей вызова" Style="{StaticResource RowTitle}"/>
+                                    <TextBlock Text="Работает глобально, из любой игры" Style="{StaticResource RowHint}"/>
+                                </StackPanel>
+                                <ComboBox x:Name="HotkeyCombo" Grid.Column="1" Style="{StaticResource AccentCombo}"
+                                          VerticalAlignment="Center" SelectionChanged="HotkeyCombo_SelectionChanged"/>
+                            </Grid>
+                        </Border>
+
+                        <Border Style="{StaticResource RowBorder}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Поиск при наборе" Style="{StaticResource RowTitle}"/>
+                                    <TextBlock Text="Поля поиска нет: начни печатать, и список отфильтруется. Выключено — обычное поле сверху"
+                                               Style="{StaticResource RowHint}" MaxWidth="430"/>
+                                </StackPanel>
+                                <ToggleButton x:Name="TypeSearchSwitch" Grid.Column="1" Style="{StaticResource Switch}"
+                                              VerticalAlignment="Center" Click="TypeSearchSwitch_Click"/>
+                            </Grid>
+                        </Border>
+
+                        <Border x:Name="AutoClearRow" Style="{StaticResource RowBorder}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Стирать запрос через 2 с" Style="{StaticResource RowTitle}"/>
+                                    <TextBlock Text="Как в Dota: две секунды без нажатий — и буквы пропадают, список возвращается"
+                                               Style="{StaticResource RowHint}" MaxWidth="430"/>
+                                </StackPanel>
+                                <ToggleButton x:Name="AutoClearSwitch" Grid.Column="1" Style="{StaticResource Switch}"
+                                              VerticalAlignment="Center" Click="AutoClearSwitch_Click"/>
+                            </Grid>
+                        </Border>
+
+                        <Border Style="{StaticResource RowBorder}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Сначала часто используемые" Style="{StaticResource RowTitle}"/>
+                                    <TextBlock Text="Плитки идут по числу запусков. Выключено — порядок остаётся таким, каким его перетащили"
+                                               Style="{StaticResource RowHint}" MaxWidth="430"/>
+                                </StackPanel>
+                                <ToggleButton x:Name="SortByUsageSwitch" Grid.Column="1" Style="{StaticResource Switch}"
+                                              VerticalAlignment="Center" Click="SortByUsageSwitch_Click"/>
+                            </Grid>
+                        </Border>
+
+                        <Border Style="{StaticResource RowBorder}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Запускать при старте Windows" Style="{StaticResource RowTitle}"/>
+                                    <TextBlock Text="Сворачивается в трей, ждёт хоткей" Style="{StaticResource RowHint}"/>
+                                </StackPanel>
+                                <ToggleButton x:Name="AutostartSwitch" Grid.Column="1" Style="{StaticResource Switch}"
+                                              VerticalAlignment="Center" Click="AutostartSwitch_Click"/>
+                            </Grid>
+                        </Border>
+
+                        <Border Style="{StaticResource RowBorder}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Убирать папки, которые не открывались" Style="{StaticResource RowTitle}"/>
+                                    <TextBlock Text="Открытие папки из панели сбрасывает срок. Пропадает только запись — сама папка на диске остаётся"
+                                               Style="{StaticResource RowHint}" MaxWidth="430"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <StackPanel x:Name="FolderDaysRow" Orientation="Horizontal" VerticalAlignment="Center"
+                                                Margin="0,0,10,0">
+                                        <Border Width="64" Height="32" CornerRadius="8" BorderThickness="1"
+                                                BorderBrush="{DynamicResource LineBrush}" Background="{DynamicResource FieldBrush}" Padding="9,0">
+                                            <TextBox x:Name="FolderDaysBox" Background="Transparent" BorderThickness="0"
+                                                     Foreground="{DynamicResource FgBrush}" CaretBrush="{DynamicResource AccentBrush}"
+                                                     FontSize="12.5" MaxLength="4" VerticalContentAlignment="Center"
+                                                     TextAlignment="Center" LostFocus="FolderDaysBox_LostFocus"
+                                                     PreviewKeyDown="FolderDaysBox_KeyDown"/>
+                                        </Border>
+                                        <TextBlock Text="дн." FontSize="11.5" Foreground="{DynamicResource DimBrush}"
+                                                   VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                    </StackPanel>
+                                    <ToggleButton x:Name="FolderAutoDeleteSwitch" Style="{StaticResource Switch}"
+                                                  VerticalAlignment="Center" Click="FolderAutoDeleteSwitch_Click"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                            </StackPanel>
+                        </Expander>
+
+                        <Expander x:Name="AppsSection" Tag="apps" Style="{StaticResource SettingsExpander}"
+                                  Expanded="Section_Toggled" Collapsed="Section_Toggled">
+                            <Expander.Header>
+                                <TextBlock Text="ПРИЛОЖЕНИЯ" Style="{StaticResource SectionTitle}" Margin="0"/>
+                            </Expander.Header>
+                            <StackPanel>
+
+                        <!-- list of apps doubles as a drop zone for exe/shortcut/folder -->
+                        <Grid x:Name="SettingsAppsDropZone" AllowDrop="True">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Border Grid.Row="0" Style="{StaticResource RowBorder}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="Список приложений" Style="{StaticResource RowTitle}"/>
+                                    <TextBlock x:Name="AppsHint" Text="Добавь приложения вручную"
+                                               Style="{StaticResource RowHint}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Button Content="+ Добавить" Style="{StaticResource GhostBtn}" Click="AddApp_Click"/>
+                                    <Button Content="+ Папка" Style="{StaticResource GhostBtn}" Margin="7,0,0,0"
+                                            Click="AddFolder_Click" ToolTip="Папка откроется в проводнике"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                            <ItemsControl x:Name="SettingsAppsList" Grid.Row="1" Margin="0,4,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type local:AppEntry}">
+                                    <Grid Height="36">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Border Width="26" Height="26" CornerRadius="7" Background="{DynamicResource IconBoxBrush}"
+                                                BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
+                                                VerticalAlignment="Center">
+                                            <Grid>
+                                                <Image Source="{Binding IconImage}" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                                <TextBlock Text="{Binding Mono}" FontSize="9" FontWeight="SemiBold"
+                                                           Foreground="{DynamicResource MonoTextBrush}" HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding HasIcon}" Value="True">
+                                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </Grid>
+                                        </Border>
+                                        <Grid Grid.Column="1" Margin="10,0,10,0" VerticalAlignment="Center">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Name}" Foreground="{DynamicResource MutedBrush}"
+                                                       FontSize="12.5" VerticalAlignment="Center"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                            <Border Grid.Column="1" Background="{DynamicResource DangerBgBrush}" CornerRadius="5"
+                                                    Padding="5,1" Margin="7,0,0,0" VerticalAlignment="Center">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding RunAsAdmin}" Value="True">
+                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <TextBlock Text="админ" FontSize="9.5" Foreground="{DynamicResource DangerTextBrush}"/>
+                                            </Border>
+                                        </Grid>
+                                        <Button Grid.Column="2" Style="{StaticResource ChipBtn}" Tag="{Binding}"
+                                                Content="{Binding CategoryLabel}" Click="CategoryChip_Click"
+                                                VerticalAlignment="Center" Margin="0,0,6,0"
+                                                ToolTip="Категории-теги: можно несколько или ни одной"/>
+                                        <Button Grid.Column="3" Width="24" Height="24" Tag="{Binding}"
+                                                Style="{StaticResource IconBtn}" Click="EditApp_Click"
+                                                Margin="0,0,2,0" ToolTip="Изменить">
+                                            <TextBlock Text="&#x270E;" FontFamily="Segoe UI Symbol" FontSize="11"
+                                                       Foreground="{DynamicResource DimBrush}"/>
+                                        </Button>
+                                        <Button Grid.Column="4" Width="24" Height="24" Tag="{Binding}"
+                                                Style="{StaticResource IconBtn}" Click="RemoveApp_Click"
+                                                ToolTip="Убрать">
+                                            <TextBlock Text="&#x2715;" FontSize="10" Foreground="{DynamicResource DimBrush}"/>
+                                        </Button>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                            <Border x:Name="SettingsAppsDropHint" Grid.RowSpan="2" Style="{StaticResource DropHintOverlay}">
+                                <Grid>
+                                    <Rectangle Stroke="{DynamicResource AccentBrush}" StrokeThickness="1.5" StrokeDashArray="3 3"
+                                               RadiusX="16" RadiusY="16" Margin="1"/>
+                                    <TextBlock Text="Отпусти — добавится в список" FontSize="12" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource AccentBrush}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+                        </Grid>
+
+                            </StackPanel>
+                        </Expander>
+
+                        <Expander x:Name="CategoriesSection" Tag="categories" Style="{StaticResource SettingsExpander}"
+                                  Expanded="Section_Toggled" Collapsed="Section_Toggled">
+                            <Expander.Header>
+                                <TextBlock Text="КАТЕГОРИИ" Style="{StaticResource SectionTitle}" Margin="0"/>
+                            </Expander.Header>
+                            <StackPanel>
+
+                        <Border Style="{StaticResource RowBorder}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Свои категории" Style="{StaticResource RowTitle}"/>
+                                    <TextBlock Text="Вкладки над поиском. Одно приложение может быть в нескольких категориях или ни в одной; имя меняется прямо в списке, справа — сколько приложений"
+                                               Style="{StaticResource RowHint}" MaxWidth="430"/>
+                                </StackPanel>
+                                <Button Grid.Column="1" Content="+ Категория" Style="{StaticResource GhostBtn}"
+                                        VerticalAlignment="Center" Click="AddCategory_Click"/>
+                            </Grid>
+                        </Border>
+
+                        <ItemsControl x:Name="SettingsCategoriesList" Margin="0,4,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type local:AppCategory}">
+                                    <Grid Height="36">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox Style="{StaticResource NameBox}" Tag="{Binding}" Text="{Binding Label}"
+                                                 TextChanged="CategoryLabel_TextChanged" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding Count}" Foreground="{DynamicResource DimBrush}"
+                                                   FontSize="11" VerticalAlignment="Center" Margin="8,0,8,0"/>
+                                        <Button Grid.Column="2" Width="24" Height="24" Tag="{Binding}"
+                                                Style="{StaticResource IconBtn}" Click="RemoveCategory_Click"
+                                                ToolTip="Удалить категорию">
+                                            <TextBlock Text="&#x2715;" FontSize="10" Foreground="{DynamicResource DimBrush}"/>
+                                        </Button>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                            </StackPanel>
+                        </Expander>
+
+                        <Expander x:Name="PresetsSection" Tag="presets" Style="{StaticResource SettingsExpander}"
+                                  Expanded="Section_Toggled" Collapsed="Section_Toggled">
+                            <Expander.Header>
+                                <TextBlock Text="НАБОРЫ" Style="{StaticResource SectionTitle}" Margin="0"/>
+                            </Expander.Header>
+                            <StackPanel>
+
+                        <Border Style="{StaticResource RowBorder}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Свои сценарии" Style="{StaticResource RowTitle}"/>
+                                    <TextBlock Text="Набор приложений, которые запускаются одной кнопкой" Style="{StaticResource RowHint}"/>
+                                </StackPanel>
+                                <Button Grid.Column="1" Content="+ Создать набор" Style="{StaticResource GhostBtn}"
+                                        VerticalAlignment="Center" Click="CreatePreset_Click"/>
+                            </Grid>
+                        </Border>
+
+                        <ItemsControl x:Name="SettingsPresetsList" Margin="0,4,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type local:Preset}">
+                                    <Grid Height="36">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Name}" Foreground="{DynamicResource FgBrush}" FontSize="12.5"/>
+                                            <TextBlock Text="{Binding AppsText}" Foreground="{DynamicResource DimBrush}"
+                                                       FontSize="10.5" TextTrimming="CharacterEllipsis"/>
+                                        </StackPanel>
+                                        <Button Grid.Column="1" Width="24" Height="24" Tag="{Binding}"
+                                                Style="{StaticResource IconBtn}" Click="Preset_Click"
+                                                Margin="0,0,2,0" ToolTip="Запустить набор">
+                                            <TextBlock Text="&#x25B6;" FontSize="9" Foreground="{DynamicResource DimBrush}"/>
+                                        </Button>
+                                        <Button Grid.Column="2" Width="24" Height="24" Tag="{Binding}"
+                                                Style="{StaticResource IconBtn}" Click="RemovePreset_Click"
+                                                ToolTip="Удалить набор">
+                                            <TextBlock Text="&#x2715;" FontSize="10" Foreground="{DynamicResource DimBrush}"/>
+                                        </Button>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <Border Style="{StaticResource RowBorder}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Показывать наборы на главной" Style="{StaticResource RowTitle}"/>
+                                    <TextBlock Text="Полоска наборов внизу. Выключено — наборы живут только здесь"
+                                               Style="{StaticResource RowHint}" MaxWidth="430"/>
+                                </StackPanel>
+                                <ToggleButton x:Name="ShowPresetsSwitch" Grid.Column="1" Style="{StaticResource Switch}"
+                                              VerticalAlignment="Center" Click="ShowPresetsSwitch_Click"/>
+                            </Grid>
+                        </Border>
+
+                            </StackPanel>
+                        </Expander>
+
+                        <Expander x:Name="DataSection" Tag="data" Style="{StaticResource SettingsExpander}"
+                                  Expanded="Section_Toggled" Collapsed="Section_Toggled">
+                            <Expander.Header>
+                                <TextBlock Text="ДАННЫЕ" Style="{StaticResource SectionTitle}" Margin="0"/>
+                            </Expander.Header>
+                            <StackPanel>
+
+                        <Border Style="{StaticResource RowBorder}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Настройки и данные" Style="{StaticResource RowTitle}"/>
+                                    <TextBlock Text="Экспорт и импорт settings.json. «Откат» возвращает внутренний бэкап, «Сброс» — базовые настройки; бэкап при сбросе остаётся"
+                                               Style="{StaticResource RowHint}" MaxWidth="430"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Button Content="Экспорт" Style="{StaticResource GhostBtn}" Click="ExportSettings_Click"
+                                            ToolTip="Сохранить копию настроек в файл"/>
+                                    <Button Content="Импорт" Style="{StaticResource GhostBtn}" Margin="7,0,0,0"
+                                            Click="ImportSettings_Click" ToolTip="Заменить настройки содержимым файла"/>
+                                    <Button Content="Откат" Style="{StaticResource GhostBtn}" Margin="7,0,0,0"
+                                            Click="RestoreBackup_Click" ToolTip="Вернуть внутренний бэкап, снятый перед импортом или сбросом"/>
+                                    <Button Content="Сброс" Style="{StaticResource GhostBtn}" Margin="7,0,0,0"
+                                            Click="ResetSettings_Click" ToolTip="Вернуться к базовым настройкам"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                            </StackPanel>
+                        </Expander>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <!-- the only chrome left: settings, floating over whatever is underneath -->
+            <ToggleButton x:Name="SettingsToggle" Style="{StaticResource IconToggle}" Panel.ZIndex="10"
+                          HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,8,19,0"
+                          Click="SettingsToggle_Click" ToolTip="Настройки">
+                <TextBlock Text="&#x2699;" FontFamily="Segoe UI Symbol" FontSize="15"/>
+            </ToggleButton>
+
+            <!-- toast -->
+            <Border x:Name="Toast" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,78"
+                    CornerRadius="10" BorderThickness="1" BorderBrush="{DynamicResource LineStrongBrush}"
+                    Background="{DynamicResource ToastBrush}" Padding="14,9" Opacity="0" IsHitTestVisible="False">
+                <StackPanel Orientation="Horizontal">
+                    <Ellipse Width="7" Height="7" Fill="{DynamicResource GoodBrush}" VerticalAlignment="Center" Margin="0,0,9,0"/>
+                    <TextBlock x:Name="ToastText" Text="" FontSize="12.5" Foreground="{DynamicResource FgBrush}"
+                               TextWrapping="Wrap" MaxWidth="520"/>
+                </StackPanel>
+            </Border>
+
+        </Grid>
+    </Border>
+</Window>
