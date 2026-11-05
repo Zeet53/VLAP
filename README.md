@@ -127,16 +127,6 @@ Invoke-RestMethod 'http://127.0.0.1:49521/presets/run' -Method Post `
 Требуется Windows и [.NET 10 SDK](https://dotnet.microsoft.com/download).
 
 ```bat
-build.bat
-```
-
-`build.bat` публикует exe, затем вызывает `sign.bat`: подпись, `publish\VLAP.cer` и
-`publish\VLAP.exe.sha256`. Если сертификата или signtool нет, сборка не падает — exe остаётся
-неподписанным.
-
-Эквивалентная команда публикации:
-
-```bat
 dotnet publish -c Release -r win-x64 --self-contained true ^
   -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish
 ```
@@ -150,6 +140,18 @@ dotnet publish -c Release -r win-x64 --self-contained true ^
 New-SelfSignedCertificate -Type CodeSigningCert -Subject "CN=VLAP Self-Signed" `
   -KeyUsage DigitalSignature -KeySpec Signature -KeyExportPolicy Exportable `
   -NotAfter (Get-Date).AddYears(10) -CertStoreLocation Cert:\CurrentUser\My
+```
+
+Подпись, публичный сертификат и контрольная сумма:
+
+```bat
+signtool sign /n "VLAP Self-Signed" /fd SHA256 /a publish\VLAP.exe
+```
+
+```powershell
+Export-Certificate -Cert (Get-ChildItem Cert:\CurrentUser\My\* | Where-Object Subject -eq `
+  'CN=VLAP Self-Signed') -FilePath publish\VLAP.cer -Type CERT
+(Get-FileHash .\publish\VLAP.exe -Algorithm SHA256).Hash
 ```
 
 Закрытый ключ хранится в профиле пользователя и в git не попадает; удаление сертификата или переезд
