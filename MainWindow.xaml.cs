@@ -53,6 +53,12 @@ public partial class MainWindow : Window
     private string _heldTerm = "";
     private double _appliedScale = 1.0;
     private bool _suppressDeactivate;
+    // a click with a mouse button held may be the start of a drag from Explorer onto
+    // the HUD: hiding right away would take the drop zone away before the pointer arrives
+    private bool _deferredHide;
+    private DispatcherTimer? _deferredHideTimer;
+    private bool _fileDragOver;
+    private DispatcherTimer? _dropHintTimer;
     private bool _initializing;
     private bool _iconsLoaded;
     private bool _categoryEditReady;
@@ -123,14 +129,68 @@ public partial class MainWindow : Window
         SettingsStore.Log("deactivated: suppress=" + _suppressDeactivate + ", visible=" + IsVisible);
         if (_suppressDeactivate) return;
         if (!IsVisible) return;
+        if (_fileDragOver)
+        {
+            // a drag is genuinely over the panel; if the button is already up the drag
+            // ended without a Drop or DragLeave reaching us — drop the stale flag
+            if (AnyMouseButtonDown()) return;
+            _fileDragOver = false;
+        }
 
         // Hide only when the user actually clicked somewhere else. A window that
         // pops up on its own (notification, launched app, game going foreground)
         // steals focus without any mouse button being held — keep the HUD open then.
-        if (GetKeyState(0x01) >= 0 && GetKeyState(0x02) >= 0) return;
+        if (!AnyMouseButtonDown()) return;
 
-        HideOverlay();
+        // The button is still down: this is very often the start of a file drag from
+        // Explorer or the desktop. Wait for it to come up, then hide unless the files
+        // actually landed on the HUD.
+        BeginDeferredHide();
     }
+
+    /// <summary>
+    /// Hides the HUD once the mouse button that took focus away has been released.
+    /// A file drag that reaches the panel cancels this via <see cref="CancelDeferredHide"/>.
+    /// Polling is needed because a window that lost activation receives no mouse-up.
+    /// </summary>
+    private void BeginDeferredHide()
+    {
+        _deferredHide = true;
+        if (_deferredHideTimer == null)
+        {
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
+            timer.Tick += (_, _) =>
+            {
+                if (!_deferredHide) { timer.Stop(); return; }
+                if (_suppressDeactivate || !IsVisible || IsActive)
+                {
+                    CancelDeferredHide();
+                    return;
+                }
+
+                // still waiting for the drag (or simply for the click) to finish
+                if (AnyMouseButtonDown()) return;
+
+                _fileDragOver = false;
+                CancelDeferredHide();
+                HideOverlay();
+            };
+            _deferredHideTimer = timer;
+        }
+        _deferredHideTimer.Start();
+    }
+
+    private void CancelDeferredHide()
+    {
+        _deferredHide = false;
+        _deferredHideTimer?.Stop();
+    }
+
+    /// <summary>Global button state: timer-driven checks cannot rely on GetKeyState, which is per-message.</summary>
+    private static bool AnyMouseButtonDown() =>
+        (GetAsyncKeyState(0x01) & 0x8000) != 0 ||   // left
+        (GetAsyncKeyState(0x02) & 0x8000) != 0 ||   // right
+        (GetAsyncKeyState(0x04) & 0x8000) != 0;     // middle
 
     private void OnPreviewKeyDown(object sender, KeyEventArgs e)
     {
@@ -200,6 +260,8 @@ public partial class MainWindow : Window
     {
         _hotkey?.Dispose();
         _hotkey = null;
+        CancelDeferredHide();
+        ResetDropHints();
     }
 
     // ---------- overlay visibility ----------
@@ -207,6 +269,9 @@ public partial class MainWindow : Window
     public void ShowOverlay()
     {
         SettingsStore.Log("ShowOverlay: visible=" + IsVisible);
+        CancelDeferredHide();
+        ResetDropHints();
+        _fileDragOver = false;
         PositionWindow();
 
         Shell.Opacity = 1;
@@ -253,6 +318,9 @@ public partial class MainWindow : Window
     private void HideOverlay()
     {
         if (!IsVisible) return;
+        CancelDeferredHide();
+        _fileDragOver = false;
+        ResetDropHints();
         Hide();
         ResetSearch();
         SettingsToggle.IsChecked = false;
@@ -575,6 +643,8 @@ public partial class MainWindow : Window
 
             try
             {
+                CancelDeferredHide();
+                ResetDropHints();
                 DragDrop.DoDragDrop(AppsList, new DataObject(TileDragFormat, app), DragDropEffects.Move);
             }
             finally
@@ -1276,6 +1346,7 @@ public partial class MainWindow : Window
 
     public void OpenSettings()
     {
+        ResetDropHints();
         SettingsView.Visibility = Visibility.Visible;
         SettingsToggle.IsChecked = true;
         RefreshSettingsLists();
@@ -1284,6 +1355,7 @@ public partial class MainWindow : Window
 
     private void CloseSettings()
     {
+        ResetDropHints();
         SettingsView.Visibility = Visibility.Collapsed;
         SettingsToggle.IsChecked = false;
     }
@@ -1652,10 +1724,48 @@ public partial class MainWindow : Window
         // dropping on the main grid while a category tab is active tags the new entry with it;
         // under «Все» there is no tag
         SetupDropTarget(AppsDropZone,
-            on => AppsDropHint.Visibility = on ? Visibility.Visible : Visibility.Collapsed,
+            on => { if (on) ShowDropHint(AppsDropHint); else HideDropHint(AppsDropHint); },
             () => _category == "all" ? null : _category);
         SetupDropTarget(SettingsAppsDropZone,
-            on => SettingsAppsDropHint.Visibility = on ? Visibility.Visible : Visibility.Collapsed);
+            on => { if (on) ShowDropHint(SettingsAppsDropHint); else HideDropHint(SettingsAppsDropHint); });
+    }
+
+    /// <summary>Shows one drop hint and starts the safety timer that clears it once no button is held.</summary>
+    private void ShowDropHint(Border hint)
+    {
+        AppsDropHint.Visibility = hint == AppsDropHint ? Visibility.Visible : Visibility.Collapsed;
+        SettingsAppsDropHint.Visibility = hint == SettingsAppsDropHint ? Visibility.Visible : Visibility.Collapsed;
+
+        if (_dropHintTimer == null)
+        {
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
+            timer.Tick += (_, _) =>
+            {
+                // a file drag cannot continue without a held mouse button: the drag was
+                // cancelled, dropped somewhere else, or its source died without a DragLeave
+                if (AnyMouseButtonDown()) return;
+                ResetDropHints();
+                _fileDragOver = false;
+            };
+            _dropHintTimer = timer;
+        }
+        _dropHintTimer.Start();
+    }
+
+    private void HideDropHint(Border hint)
+    {
+        hint.Visibility = Visibility.Collapsed;
+        if (AppsDropHint.Visibility != Visibility.Visible &&
+            SettingsAppsDropHint.Visibility != Visibility.Visible)
+            _dropHintTimer?.Stop();
+    }
+
+    /// <summary>Clears every drop hint. Called whenever the HUD opens, closes or switches screens.</summary>
+    private void ResetDropHints()
+    {
+        AppsDropHint.Visibility = Visibility.Collapsed;
+        SettingsAppsDropHint.Visibility = Visibility.Collapsed;
+        _dropHintTimer?.Stop();
     }
 
     private void SetupDropTarget(UIElement zone, Action<bool> highlight, Func<string?>? category = null)
@@ -1666,14 +1776,20 @@ public partial class MainWindow : Window
         zone.DragOver += (_, e) => OnZoneDragOver(zone, e, highlight);
         zone.DragLeave += (_, e) =>
         {
-            // drag events also fire when the pointer moves between children — only react to a real exit
+            // drag events also fire when the pointer moves between children — only react
+            // once the pointer has really left this drop zone
             var p = e.GetPosition(zone);
             if (p.X < 0 || p.Y < 0 || p.X > zone.RenderSize.Width || p.Y > zone.RenderSize.Height)
+            {
+                _fileDragOver = false;
                 highlight(false);
+            }
         };
         zone.Drop += (_, e) =>
         {
-            highlight(false);
+            _fileDragOver = false;
+            CancelDeferredHide();
+            ResetDropHints();
             if (e.Data.GetDataPresent(TileDragFormat)) return; // a tile being moved, not a file
             if (e.Data.GetData(DataFormats.FileDrop) is not string[] paths) return;
 
@@ -1682,14 +1798,29 @@ public partial class MainWindow : Window
             if (added > 0) ShowToast($"Добавлено: {added} {Plural(added, "элемент", "элемента", "элементов")}");
             else ShowToast("Эти файлы уже в списке");
             e.Handled = true;
+
+            // the drop does not activate the window: without this the next click elsewhere
+            // would not deactivate it and the HUD would stay open until the hotkey
+            Dispatcher.BeginInvoke(new Action(() => { if (IsVisible) Activate(); }),
+                DispatcherPriority.Input);
         };
     }
 
-    private static void OnZoneDragOver(UIElement zone, DragEventArgs e, Action<bool> highlight)
+    private void OnZoneDragOver(UIElement zone, DragEventArgs e, Action<bool> highlight)
     {
-        if (e.Data.GetDataPresent(TileDragFormat)) return; // tile reordering has its own target
+        if (e.Data.GetDataPresent(TileDragFormat))
+        {
+            _fileDragOver = false; // tile reordering has its own target
+            ResetDropHints();
+            return;
+        }
 
         var ok = e.Data.GetDataPresent(DataFormats.FileDrop);
+        if (ok)
+        {
+            _fileDragOver = true;
+            CancelDeferredHide();
+        }
         e.Effects = ok ? DragDropEffects.Copy : DragDropEffects.None;
         highlight(ok);
         e.Handled = true;
@@ -2220,6 +2351,9 @@ public partial class MainWindow : Window
 
     [DllImport("user32.dll")]
     private static extern short GetKeyState(int nVirtKey);
+
+    [DllImport("user32.dll")]
+    private static extern short GetAsyncKeyState(int nVirtKey);
 
     [DllImport("user32.dll")]
     private static extern int SetWindowRgn(IntPtr hwnd, IntPtr region, bool redraw);
