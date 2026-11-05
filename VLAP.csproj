@@ -17,4 +17,10 @@
     <AssemblyTitle>VLAP — Virtual Launch Assistant Panel</AssemblyTitle>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <SatelliteResourceLanguages>en;ru</SatelliteResourceLanguages>
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+
 </Project>
