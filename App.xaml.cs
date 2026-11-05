@@ -87,8 +87,9 @@ public partial class App : Application
                 "Убраны папки, которые давно не открывались: " + names, WinForms.ToolTipIcon.Info);
         }
 
-        _api = new HttpApi(Overlay!);
-        _api.Start();
+        if (Settings.HttpApiEnabled && !SetHttpApiEnabled(true))
+            _tray?.ShowBalloonTip(6000, "VLAP",
+                "HTTP-сервер не запущен: порт " + HttpApi.Port + " занят", WinForms.ToolTipIcon.Warning);
 
         var showRequested = Array.Exists(e.Args, a => string.Equals(a, "--show", StringComparison.OrdinalIgnoreCase));
         var settingsRequested = Array.Exists(e.Args, a => string.Equals(a, "--settings", StringComparison.OrdinalIgnoreCase));
@@ -168,6 +169,38 @@ public partial class App : Application
         Instance?.DisposeApi();
         Instance?.DisposeTray();
         Current?.Shutdown();
+    }
+
+    /// <summary>
+    /// Starts or stops the local API at runtime. A closed HttpListener cannot be reopened, so every
+    /// enable builds a fresh HttpApi. False means the port could not be opened.
+    /// </summary>
+    public static bool SetHttpApiEnabled(bool enabled)
+    {
+        if (Instance == null) return false;
+        return enabled ? Instance.StartApi() : Instance.StopApi();
+    }
+
+    private bool StartApi()
+    {
+        DisposeApi();
+        if (Overlay == null) return false;
+
+        var api = new HttpApi(Overlay);
+        if (!api.Start())
+        {
+            api.Dispose();
+            return false;
+        }
+
+        _api = api;
+        return true;
+    }
+
+    private bool StopApi()
+    {
+        DisposeApi();
+        return true;
     }
 
     private void DisposeApi()

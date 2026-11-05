@@ -801,6 +801,22 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel>
+                                    <TextBlock Text="HTTP-сервер" Style="{StaticResource RowTitle}"/>
+                                    <TextBlock Text="Локальный API на 127.0.0.1:49521 для внешних сценариев. Выключен по умолчанию"
+                                               Style="{StaticResource RowHint}" MaxWidth="430"/>
+                                </StackPanel>
+                                <ToggleButton x:Name="HttpApiSwitch" Grid.Column="1" Style="{StaticResource Switch}"
+                                              VerticalAlignment="Center" Click="HttpApiSwitch_Click"/>
+                            </Grid>
+                        </Border>
+
+                        <Border Style="{StaticResource RowBorder}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
                                     <TextBlock Text="Убирать папки, которые не открывались" Style="{StaticResource RowTitle}"/>
                                     <TextBlock Text="Открытие папки из панели сбрасывает срок. Пропадает только запись — сама папка на диске остаётся"
                                                Style="{StaticResource RowHint}" MaxWidth="430"/>

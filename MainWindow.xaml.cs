@@ -1239,6 +1239,7 @@ public partial class MainWindow : Window
         ThemeSwitch.IsChecked = _settings.LightTheme;
         BlurSwitch.IsChecked = _settings.Blur;
         AutostartSwitch.IsChecked = _settings.Autostart;
+        HttpApiSwitch.IsChecked = _settings.HttpApiEnabled;
         FolderAutoDeleteSwitch.IsChecked = _settings.FolderAutoDelete;
         FolderDaysBox.Text = (_settings.FolderAutoDeleteDays > 0 ? _settings.FolderAutoDeleteDays : 30).ToString();
         RefreshFolderDays();
@@ -1293,6 +1294,7 @@ public partial class MainWindow : Window
         ThemeSwitch.IsChecked = _settings.LightTheme;
         BlurSwitch.IsChecked = _settings.Blur;
         AutostartSwitch.IsChecked = _settings.Autostart;
+        HttpApiSwitch.IsChecked = _settings.HttpApiEnabled;
         FolderAutoDeleteSwitch.IsChecked = _settings.FolderAutoDelete;
         FolderDaysBox.Text = (_settings.FolderAutoDeleteDays > 0 ? _settings.FolderAutoDeleteDays : 30).ToString();
         RefreshFolderDays();
@@ -1441,6 +1443,38 @@ public partial class MainWindow : Window
         StartupManager.Set(_settings.Autostart);
         SettingsStore.Save(_settings);
         ShowToast(_settings.Autostart ? "Автозапуск включён" : "Автозапуск выключен");
+    }
+
+    private void HttpApiSwitch_Click(object sender, RoutedEventArgs e)
+    {
+        if (_initializing) return;
+        var wanted = HttpApiSwitch.IsChecked == true;
+        _settings.HttpApiEnabled = wanted;
+        if (!ApplyHttpApiSetting())
+        {
+            _initializing = true;
+            HttpApiSwitch.IsChecked = false;
+            _initializing = false;
+            return;
+        }
+
+        SettingsStore.Save(_settings);
+        ShowToast(wanted ? "HTTP-сервер включён" : "HTTP-сервер выключен");
+    }
+
+    /// <summary>
+    /// Starts or stops the local API to match the setting. A busy port turns the setting back off
+    /// instead of leaving the switch on while nothing is listening.
+    /// </summary>
+    private bool ApplyHttpApiSetting()
+    {
+        if (App.SetHttpApiEnabled(_settings.HttpApiEnabled)) return true;
+        if (!_settings.HttpApiEnabled) return true;
+
+        _settings.HttpApiEnabled = false;
+        SettingsStore.Save(_settings);
+        ShowToast("HTTP-сервер не запущен: порт " + HttpApi.Port + " занят");
+        return false;
     }
 
     /// <summary>The day count only makes sense while the switch is on, so it hides with it.</summary>
@@ -1639,6 +1673,7 @@ public partial class MainWindow : Window
 
         ThemeManager.Apply(_settings.LightTheme);
         StartupManager.Set(_settings.Autostart);
+        ApplyHttpApiSetting();
         ApplyBackdropVisual();
 
         BuildTabs();

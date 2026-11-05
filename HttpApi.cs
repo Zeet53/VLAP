@@ -47,7 +47,7 @@ public sealed class PresetDto
 public sealed class HttpApi : IDisposable
 {
     public const int Port = 49521;
-    private const string Prefix = "http://127.0.0.1:49521/";
+    private static readonly string Prefix = "http://127.0.0.1:" + Port + "/";
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -64,19 +64,27 @@ public sealed class HttpApi : IDisposable
         _window = window;
     }
 
-    public void Start()
+    /// <summary>Last reason the port could not be opened; null when it opened or before an attempt.</summary>
+    public string? LastError { get; private set; }
+
+    /// <summary>Opens the port. False with <see cref="LastError"/> set when it is busy or blocked.</summary>
+    public bool Start()
     {
         try
         {
             _listener.Prefixes.Add(Prefix);
             _listener.Start();
             _started = true;
+            LastError = null;
             SettingsStore.Log("http api: listening on " + Prefix);
             _ = Task.Run(LoopAsync);
+            return true;
         }
         catch (Exception ex)
         {
+            LastError = ex.Message;
             SettingsStore.Log("http api: cannot listen on " + Prefix + ": " + ex.Message);
+            return false;
         }
     }
 

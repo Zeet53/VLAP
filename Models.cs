@@ -268,6 +268,9 @@ public sealed class AppSettings
     /// <summary>Show the preset strip at the bottom of the main screen.</summary>
     public bool ShowPresetsOnMain { get; set; } = true;
 
+    /// <summary>Loopback JSON API for external tools. Off by default; missing in older files means off.</summary>
+    public bool HttpApiEnabled { get; set; }
+
     /// <summary>Order the grid by how often each entry is started instead of the order the user dragged tiles into.</summary>
     public bool SortByUsage { get; set; } = true;
 
@@ -300,6 +303,7 @@ public sealed class AppSettings
         TypeToSearch = other.TypeToSearch;
         SearchAutoClear = other.SearchAutoClear;
         ShowPresetsOnMain = other.ShowPresetsOnMain;
+        HttpApiEnabled = other.HttpApiEnabled;
         SortByUsage = other.SortByUsage;
         FolderAutoDelete = other.FolderAutoDelete;
         FolderAutoDeleteDays = other.FolderAutoDeleteDays;
