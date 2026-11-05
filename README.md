@@ -45,6 +45,36 @@ VLAP (Virtual Launch Assistant Panel) — виртуальная панель д
 2. Запустить из любой папки — установка не требуется, .NET включён в сборку.
 3. При первом запуске включается автозапуск; отключается в настройках или в меню трея.
 
+При первом запуске Windows может показать предупреждение SmartScreen — это ожидаемо, подробности
+в разделе [Подпись файла](#подпись-файла).
+
+## Подпись файла
+
+`VLAP.exe` в релизе подписан самоподписанным сертификатом `CN=VLAP Self-Signed`. Такой сертификат
+не выдаётся центром сертификации, поэтому:
+
+- SmartScreen и антивирусы по-прежнему могут показывать предупреждение — подпись их не отключает;
+- на чужом компьютере подпись по умолчанию недоверенная: в свойствах файла издатель неизвестен,
+  а `Get-AuthenticodeSignature` возвращает `UnknownError`, пока сертификат не добавлен в доверенные.
+
+Что даёт подпись: любое изменение файла после подписи делает её недействительной, а издатель и
+отпечаток видны в свойствах exe. Вместе с релизом публикуются `VLAP.cer` (публичный сертификат) и
+`VLAP.exe.sha256` (контрольная сумма).
+
+Проверка целостности:
+
+```powershell
+(Get-FileHash .\VLAP.exe -Algorithm SHA256).Hash
+Get-AuthenticodeSignature .\VLAP.exe | Select-Object Status, StatusMessage
+```
+
+Чтобы подпись отображалась как действительная, добавьте `VLAP.cer` в доверенные корневые
+сертификаты текущего пользователя (права администратора не нужны):
+
+```powershell
+Import-Certificate -FilePath .\VLAP.cer -CertStoreLocation Cert:\CurrentUser\Root
+```
+
 ## Данные и настройки
 
 Каталог `%APPDATA%\VLAP\`:
@@ -100,14 +130,30 @@ Invoke-RestMethod 'http://127.0.0.1:49521/presets/run' -Method Post `
 build.bat
 ```
 
-Эквивалентная команда:
+`build.bat` публикует exe, затем вызывает `sign.bat`: подпись, `publish\VLAP.cer` и
+`publish\VLAP.exe.sha256`. Если сертификата или signtool нет, сборка не падает — exe остаётся
+неподписанным.
+
+Эквивалентная команда публикации:
 
 ```bat
 dotnet publish -c Release -r win-x64 --self-contained true ^
   -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish
 ```
 
-Результат — `publish\VLAP.exe` (~165 МБ). Запущенный экземпляр перед публикацией следует закрыть.
+Результат — `publish\VLAP.exe` (~150 МБ). Запущенный экземпляр перед публикацией следует закрыть.
+
+Для подписи нужен сертификат `CN=VLAP Self-Signed` в хранилище текущего пользователя. Создаётся
+один раз:
+
+```powershell
+New-SelfSignedCertificate -Type CodeSigningCert -Subject "CN=VLAP Self-Signed" `
+  -KeyUsage DigitalSignature -KeySpec Signature -KeyExportPolicy Exportable `
+  -NotAfter (Get-Date).AddYears(10) -CertStoreLocation Cert:\CurrentUser\My
+```
+
+Закрытый ключ хранится в профиле пользователя и в git не попадает; удаление сертификата или переезд
+на другую машину меняет издателя подписи.
 
 ## Структура проекта
 

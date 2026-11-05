@@ -29,3 +29,7 @@ desktop.ini
 .DS_Store
 
 development/
+
+# Ключи подписи: закрытые ключи и контейнеры
+*.pfx
+*.snk

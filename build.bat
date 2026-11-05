@@ -10,6 +10,10 @@ dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=
 if errorlevel 1 goto fail
 
 echo.
+echo === Подпись и контрольная сумма ===
+call "%~dp0sign.bat"
+
+echo.
 echo === Готово: %~dp0publish\VLAP.exe ===
 goto end
 
