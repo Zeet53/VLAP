@@ -137,15 +137,8 @@ public partial class MainWindow : Window
             _fileDragOver = false;
         }
 
-        // Hide only when the user actually clicked somewhere else. A window that
-        // pops up on its own (notification, launched app, game going foreground)
-        // steals focus without any mouse button being held — keep the HUD open then.
-        if (!AnyMouseButtonDown()) return;
-
-        // The button is still down: this is very often the start of a file drag from
-        // Explorer or the desktop. Wait for it to come up, then hide unless the files
-        // actually landed on the HUD.
-        BeginDeferredHide();
+        // The panel closes by hotkey or Esc only. Focus going elsewhere — a click,
+        // another window, a launched app — must not hide it.
     }
 
     /// <summary>
